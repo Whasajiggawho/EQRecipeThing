@@ -1,0 +1,41 @@
+plugins {
+	id 'groovy'
+	id 'com.github.johnrengelman.shadow' version '4.0.4'
+}
+
+version = '1.0'
+
+repositories {
+	jcenter()
+	mavenCentral()
+}
+
+defaultTasks 'shadowJar'
+
+dependencies {
+	compile(group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.12')
+	compile(group: 'net.sourceforge.nekohtml', name: 'nekohtml', version: '1.9.14')
+}
+
+shadowJar {
+	archiveName = "${project.name}.${extension}"
+	manifest {
+		attributes 'Implementation-Title' 	: archiveName
+		attributes 'Main-Class' 			: 'whasa.eq.ts.EQRecipeThing'
+	}
+}
+
+task('sourcesJar', type: Jar) {
+	archiveName = "${project.name}-sources.${extension}"
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+task('groovydocJar', type: Jar, dependsOn: groovydoc) {
+	archiveName = "${project.name}-javadoc.${extension}"
+	classifier = 'javadoc'
+	from javadoc.destinationDir
+}
+
+shadowJar.dependsOn 'groovydocJar'
+shadowJar.dependsOn 'sourcesJar'
