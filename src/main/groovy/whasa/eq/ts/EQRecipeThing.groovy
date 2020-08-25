@@ -54,6 +54,7 @@ class EQRecipeThing {
 			while(true) {
 				String url = "http://www.eqtraders.com/search/reverse_recipe_search.php?item=${id}&min=${count}"
 				println "Checking for recipes ${count} - ${count + 25}"
+				int onPage = 0
 				def parser = new SAXParser()
 				def page = new XmlSlurper(parser).parse(url)
 				def recipes = page.depthFirst().findAll {
@@ -62,6 +63,7 @@ class EQRecipeThing {
 					}.isEmpty()
 					if(good)
 					{
+						onPage++
 						def siblings = it.parent().children().list()
 						def index = siblings.indexOf(it)
 						def sibling = siblings[index - 1]
@@ -85,7 +87,7 @@ class EQRecipeThing {
 					return good
 				}
 
-				if(recipes.isEmpty()) {
+				if(onPage == 0) {
 					break
 				}
 
