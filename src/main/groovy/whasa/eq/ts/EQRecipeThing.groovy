@@ -55,8 +55,14 @@ class EQRecipeThing {
 				String url = "http://www.eqtraders.com/search/reverse_recipe_search.php?item=${id}&min=${count}"
 				println "Checking for recipes ${count} - ${count + 25}"
 				int onPage = 0
-				def parser = new SAXParser()
-				def page = new XmlSlurper(parser).parse(url)
+				def page = new XmlSlurper(new SAXParser()).with { slurper ->
+					new URL(url).openConnection().with {
+						setRequestProperty('User-Agent', 'Firefox/2.0.0.4')
+						inputStream.withReader('UTF-8') {
+							parse(it)
+						}
+					}
+				}
 				def recipes = page.depthFirst().findAll {
 					def good = !it.children().findAll {
 						it.@href =~ /^\/items\/show_item\.php\?item=\d+$/
